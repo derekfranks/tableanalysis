@@ -9,7 +9,8 @@ table.analysis <- function(var, segment, alpha=.05, detail=FALSE) {
 #if pvalue of chisq is < alpha, then proceed with pairwise prop comparisons
         if (tab_1_chisq$p.value < alpha) {
                 
-                perm <- permutations(ncol(tab_1),2)  
+                perm <- permutations(ncol(tab_1),2)
+                comb <- combinations(ncol(tab_1),2)  
 
                 #create a matrix with the combinations based on number of columns
                 comp_tab <- matrix(nrow=nrow(tab_1),ncol=ncol(tab_1))
@@ -21,7 +22,7 @@ table.analysis <- function(var, segment, alpha=.05, detail=FALSE) {
                                 counts <- c(tab_1[i,perm[k,1]], tab_1[i,perm[k,2]])
                                 totals <- c(sum(tab_1[,perm[k,1]]), sum(tab_1[,perm[k,2]]))
                                 result <- prop.test(counts, totals, correct=F)
-                                result$p.value <- p.adjust(result$p.value, method="bonferroni", n=ncol(perm))
+                                result$p.value <- p.adjust(result$p.value, method="bonferroni", n=nrow(comb))
                                 #build comp_table that summarizes the results of the pairwise prop tests
                                 if (result$p.value > alpha) {
                                         comp_tab[i,perm[k,2]] <- paste(comp_tab[i,perm[k,2]], letters[perm[k,1]], sep="")
@@ -30,10 +31,7 @@ table.analysis <- function(var, segment, alpha=.05, detail=FALSE) {
                 }
                 print(comp_tab)
                 
-                
-
-                comb <- combinations(ncol(tab_1),2)  
-                
+           
                 if (detail==TRUE) {
                         print("Pair comparisons:")
                         print(comb)
@@ -44,7 +42,7 @@ table.analysis <- function(var, segment, alpha=.05, detail=FALSE) {
                                 counts <- c(tab_1[i,comb[k,1]], tab_1[i,comb[k,2]])
                                 totals <- c(sum(tab_1[,comb[k,1]]), sum(tab_1[,comb[k,2]]))
                                 result <- prop.test(counts, totals, correct=F)
-                                result$p.value <- p.adjust(result$p.value, method="bonferroni", n=ncol(comb))
+                                result$p.value <- p.adjust(result$p.value, method="bonferroni", n=nrow(comb))
                                 
                                 if (detail==TRUE) {
                                         print(paste("Row:",as.character(i)," ", "Pair-comparison:", as.character(k),sep=" "))
