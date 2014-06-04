@@ -29,23 +29,23 @@ table.analysis <- function(table, alpha=.05, detail=FALSE, correction="holm") {
 
                 #create a matrix with the combinations based on number of columns
                 comp_tab <- matrix(nrow=nrow(tab_1),ncol=ncol(tab_1))
-#                 comp_tab <- as.table(matrix(nrow=nrow(tab_1),ncol=ncol(tab_1)))
-#                 colnames(comp_tab) <- colnames(tab_1)
-#                 rownames(comp_tab) <- rownames(tab_1)
+#                comp_tab <- as.table(matrix(nrow=nrow(tab_1),ncol=ncol(tab_1)))
                 comp_tab[is.na(comp_tab)] <- "" 
-                
+#                colnames(comp_tab) <- LETTERS[1:ncol(comp_tab)]
+#                rownames(comp_tab) <- rownames(tab_1)
+
                 #loop through each row of the table and conduct a prop test for EACH column pairing
                 for (i in 1:nrow(tab_1)) {
                         for (k in 1:nrow(comb)) {
                                 counts <- c(tab_1[i,comb[k,1]], tab_1[i,comb[k,2]])
                                 totals <- c(sum(tab_1[,comb[k,1]]), sum(tab_1[,comb[k,2]]))
                                 result <- prop.test(counts, totals, correct=F)
-                                result$p.value <- p.adjust(result$p.value, method=correction, n=nrow(comb)*nrow(tab_1))
+                                result$p.value <- p.adjust(result$p.value, method=correction, n=nrow(comb))
                                 #build comp_table that summarizes the results of the pairwise prop tests
-                                if (result$p.value < alpha & result$estimate[[1]] < result$estimate[[2]]) {
+                                if (result$p.value <= alpha & result$estimate[[1]] < result$estimate[[2]]) {
                                         comp_tab[i,comb[k,2]] <- paste(comp_tab[i,comb[k,2]], letters[comb[k,1]], sep="")
                                 }
-                                if (result$p.value < alpha & result$estimate[[1]] > result$estimate[[2]]) {
+                                if (result$p.value <= alpha & result$estimate[[1]] > result$estimate[[2]]) {
                                         comp_tab[i,comb[k,1]] <- paste(comp_tab[i,comb[k,1]], letters[comb[k,2]], sep="")
                                 }
                                 
@@ -64,7 +64,7 @@ table.analysis <- function(table, alpha=.05, detail=FALSE, correction="holm") {
                                 counts <- c(tab_1[i,comb[k,1]], tab_1[i,comb[k,2]])
                                 totals <- c(sum(tab_1[,comb[k,1]]), sum(tab_1[,comb[k,2]]))
                                 result <- prop.test(counts, totals, correct=F)
-                                result$p.value <- p.adjust(result$p.value, method=correction, n=nrow(comb)*nrow(tab_1))
+                                result$p.value <- p.adjust(result$p.value, method=correction, n=nrow(comb))
                                 
                                 if (detail==TRUE) {
                                         print(paste("Row:",as.character(i)," ", "Pair comparison detail:", as.character(k),sep=" "))
